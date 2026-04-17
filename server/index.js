@@ -21,10 +21,20 @@ let httpServer;
 let isShuttingDown = false;
 
 const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+const cloudtypeOriginPattern = /^https:\/\/[a-z0-9-]+(?:\.[a-z0-9-]+)*\.cloudtype\.app$/i;
+const configuredOrigins = (process.env.CORS_ORIGIN || process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map((value) => value.trim())
+  .filter(Boolean);
 
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || localOriginPattern.test(origin)) {
+    if (
+      !origin
+      || localOriginPattern.test(origin)
+      || cloudtypeOriginPattern.test(origin)
+      || configuredOrigins.includes(origin)
+    ) {
       callback(null, true);
       return;
     }
