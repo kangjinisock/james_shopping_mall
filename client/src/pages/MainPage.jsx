@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import Navbar from './Navbar'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL
   || (import.meta.env.DEV ? '/api' : 'http://localhost:5000')
+).replace(/\/+$/, '')
 
 const FEATURE_TILES = [
   {

@@ -5,8 +5,10 @@ import ProductManagePage from './ProductManagePage'
 import OrderManagePage from './OrderManagePage'
 import MemberManagePage from './MemberManagePage'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL
   || (import.meta.env.DEV ? '/api' : 'http://localhost:5000')
+).replace(/\/+$/, '')
 
 const AUTH_STORAGE_KEYS = ['accessToken', 'tokenType', 'currentUser', 'tokenExpiresIn', 'loginAt']
 

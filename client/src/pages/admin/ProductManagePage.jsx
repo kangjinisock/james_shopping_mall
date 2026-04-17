@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL
   || (import.meta.env.DEV ? '/api' : 'http://localhost:5000')
+).replace(/\/+$/, '')
 
 function formatPrice(value) {
   if (typeof value !== 'number' || Number.isNaN(value)) {
