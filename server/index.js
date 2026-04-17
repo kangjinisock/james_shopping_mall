@@ -13,7 +13,7 @@ const createOrdersRouter = require('./routes/orders');
 const cors = require('cors');
 
 const app = express();
-const port = Number(process.env.PORT) || 5000;
+const port = Number(process.env.PORT) || 3000;
 const mongoUri = process.env.MONGODB_ATLAS_URL?.trim() || 'mongodb://127.0.0.1:27017';
 const dbName = process.env.DB_NAME || 'shopping-mall';
 let mongoClient;
@@ -121,7 +121,7 @@ async function startServer() {
     app.use('/carts', createCartsRouter(db));
     app.use('/orders', createOrdersRouter(db));
     httpServer = app.listen(port, () => {
-      console.log(`Server listening on port ${port}`);
+      console.log(`Server listening on port ${port} (env PORT=${process.env.PORT || 'not-set'})`);
     });
 
     httpServer.on('error', (error) => {
