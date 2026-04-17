@@ -17,6 +17,15 @@ import SiteFooter from './pages/SiteFooter'
 // import orderRoutes from "./routes/order.js";
 // app.use("/api/orders", orderRoutes);
 
+function getCurrentRoute() {
+  const hashPath = window.location.hash.replace(/^#/, '')
+  if (hashPath) {
+    return hashPath.startsWith('/') ? hashPath : `/${hashPath}`
+  }
+
+  return window.location.pathname || '/'
+}
+
 function getPageFromPath(pathname) {
   if (pathname === '/login') return 'login'
   if (pathname === '/signup') return 'signup'
@@ -48,15 +57,14 @@ function getProductIdFromPath(pathname) {
 }
 
 function App() {
-
-  const [page, setPage] = useState(() => getPageFromPath(window.location.pathname))
+  const [page, setPage] = useState(() => getPageFromPath(getCurrentRoute()))
   const [selectedProductId, setSelectedProductId] = useState(() =>
-    getProductIdFromPath(window.location.pathname),
+    getProductIdFromPath(getCurrentRoute()),
   )
 
   // 주문 데이터: 새로고침에도 유지
   const [orderData, setOrderData] = useState(() => {
-    if (window.location.pathname === '/order') {
+    if (getCurrentRoute() === '/order') {
       const saved = sessionStorage.getItem('orderData')
       return saved ? JSON.parse(saved) : null
     }
@@ -64,7 +72,7 @@ function App() {
   })
 
   const [completedOrder, setCompletedOrder] = useState(() => {
-    if (window.location.pathname === '/order/success') {
+    if (getCurrentRoute() === '/order/success') {
       const saved = sessionStorage.getItem('completedOrder')
       return saved ? JSON.parse(saved) : null
     }
@@ -74,8 +82,8 @@ function App() {
   function navigateTo(nextPage, productId, data) {
     if (nextPage === 'product-detail' && productId) {
       const nextPath = `/products/${productId}`
-      if (window.location.pathname !== nextPath) {
-        window.history.pushState({}, '', nextPath)
+      if (getCurrentRoute() !== nextPath) {
+        window.location.hash = nextPath
       }
       setSelectedProductId(productId)
       setPage('product-detail')
@@ -93,20 +101,21 @@ function App() {
     }
 
     const nextPath = getPathFromPage(nextPage)
-    if (window.location.pathname !== nextPath) {
-      window.history.pushState({}, '', nextPath)
+    if (getCurrentRoute() !== nextPath) {
+      window.location.hash = nextPath
     }
 
     setPage(nextPage)
   }
 
   useEffect(() => {
-    function handlePopState() {
-      const newPage = getPageFromPath(window.location.pathname)
+    function syncRouteState() {
+      const currentRoute = getCurrentRoute()
+      const newPage = getPageFromPath(currentRoute)
       setPage(newPage)
 
       if (newPage === 'product-detail') {
-        setSelectedProductId(getProductIdFromPath(window.location.pathname))
+        setSelectedProductId(getProductIdFromPath(currentRoute))
       }
       if (newPage === 'order') {
         const saved = sessionStorage.getItem('orderData')
@@ -119,8 +128,12 @@ function App() {
       }
     }
 
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
+    window.addEventListener('hashchange', syncRouteState)
+    window.addEventListener('popstate', syncRouteState)
+    return () => {
+      window.removeEventListener('hashchange', syncRouteState)
+      window.removeEventListener('popstate', syncRouteState)
+    }
   }, [])
 
   const mainClassName = [
